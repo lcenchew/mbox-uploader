@@ -426,6 +426,7 @@ service = build('gmail', 'v1', http=http)
 current_labels = getUserLabels(service, 'me')
 current_labels["DRAFTS"] = "DRAFTS"
 current_labels["INBOX"] = "INBOX"
+current_labels["Inbox"] = "INBOX"
 current_labels["Incoming"] = "INBOX"
 current_labels["SENT"] = "SENT"
 
@@ -476,11 +477,16 @@ if os.path.exists(profile_dir + '\ImapMail'):
     imapMailAccountFolders = os.listdir(profile_dir + '\ImapMail')
     for item in imapMailAccountFolders:
         if os.path.isdir(profile_dir + '\ImapMail\\' + item):
-            folders[item] = profile_dir + '\ImapMail\\' + item
+            folders['IMAP Mail - ' + item] = profile_dir + '\ImapMail\\' + item
 # does Mail exist?
 if os.path.exists(profile_dir + '\Mail'):
-    if os.path.exists(profile_dir + '\Mail\Local Folders'):
-        folders['Local Folders'] = profile_dir + '\Mail\Local Folders'
+    # Yes:  are their directories in Mail folder?
+    mailAccountFolders = os.listdir(profile_dir + '\Mail')
+    for item in mailAccountFolders:
+        if os.path.isdir(profile_dir + '\Mail\\' + item):
+            folders['Mail - ' + item] = profile_dir + '\Mail\\' + item
+    # if os.path.exists(profile_dir + '\Mail\Local Folders'):
+    #     folders['Local Folders'] = profile_dir + '\Mail\Local Folders'
 
 # list account folders
 selection = 0
