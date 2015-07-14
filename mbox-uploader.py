@@ -331,7 +331,7 @@ def migrateMBOX(service, file, label, message_status, conn):
         msg = message.as_string()
         
         # create file object to stream message contents
-        fh = io.StringIO(unicode(msg,'utf-8'))
+        fh = io.BytesIO(msg)
         
         # create media upload object
         media = apiclient.http.MediaIoBaseUpload( fh, mimetype='message/rfc822', chunksize=1024*1024, resumable=True )
