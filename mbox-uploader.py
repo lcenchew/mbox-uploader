@@ -287,6 +287,9 @@ def migrateMBOX(service, file, label, message_status, conn):
     # get total number of messages in mbox file
     total_messages = len(mbox)
     
+    # initialize number of failed messages
+    total_failed = 0
+    
     # initialize labels
     # one label will always be 'CATEGORY_PERSONAL'
     # one label will be based on the label provided
@@ -312,7 +315,7 @@ def migrateMBOX(service, file, label, message_status, conn):
         
         if x_mozilla_status is not None:
             # determine if message is actually deleted
-            if int(x_mozilla_status) & 8:
+            if int(x_mozilla_status,16) & 8:
                 # log some feedback
                 logging.info("Message {0} of {1} - Already Deleted - Skipped".format(msg_number,total_messages))
                 
@@ -320,7 +323,7 @@ def migrateMBOX(service, file, label, message_status, conn):
                 continue
             
             # determine if message is unread
-            if int(x_mozilla_status) == 0:
+            if int(x_mozilla_status,16) == 0:
                 labels.append("UNREAD")
         
         # remove x-mozilla-status and x-mozilla-status2 lines from message header
@@ -361,6 +364,7 @@ def migrateMBOX(service, file, label, message_status, conn):
                 sys.exit()
             except:
                 upload_failed = True
+                total_failed += 1
                 logging.error("Message {0} of {1} - Upload Failed!".format(msg_number,total_messages))
                 break
             
@@ -373,6 +377,8 @@ def migrateMBOX(service, file, label, message_status, conn):
         # close StringIO object
         fh.close()
         
+    return total_messages, total_failed
+      
 """
  * CustomHandler class
  *
@@ -508,6 +514,10 @@ while not (selection > 0 and selection <= n):
 
 mailroot = selected_folder
 
+# initial total messages and total failed messages counts
+total_messages = 0
+total_failed = 0
+
 # Set to the root mail folder location
 # For example, the local mail folder would be at:
 #     APPDATA + '\Thunderbird\Profiles\iyvgb8d5.default\Mail\Local Folders'
@@ -561,7 +571,10 @@ for dirName, subdirList, fileList in os.walk(mailroot):
         print(" *                                "),
         
         # migrate MBOX messages
-        migrateMBOX(service, dirName + '\\' + mboxFile, current_labels[label], message_status, conn)
+        number_messages, number_failed = migrateMBOX(service, dirName + '\\' + mboxFile, current_labels[label], message_status, conn)
+        
+        total_messages += number_messages
+        total_failed += number_failed
         
     # Option 2 : Skip all Gmail custom folders
     if '[Gmail].sbd' in subdirList:
@@ -572,4 +585,10 @@ conn.close()
 
 print("\r                                  ")
 print("Migration Complete.\n")
+print("Total # of Messages Processed: {0}".format(total_messages))
+if total_failed > 0:
+    print("There were {0} messages that had errors during processing.  See log file for details.\n".format(total_failed))
+else:
+    print("There were no errors in processing.\n")
+
 raw_input("Press Enter to close application...")
