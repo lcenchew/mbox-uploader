@@ -25,6 +25,7 @@ import logging
 import mailbox
 import os
 import random
+import re
 import simplejson
 import sqlite3
 import sys
@@ -374,7 +375,7 @@ def migrateMBOX(service, file, label, message_status, conn):
             message_status.append(message_id)
             logging.info('Message {0} of {1} - "{2}"- Upload Complete'.format(msg_number,total_messages,message['subject']))
 
-        # close StringIO object
+        # close BaseIO object
         fh.close()
         
     return total_messages, total_failed
@@ -543,10 +544,10 @@ for dirName, subdirList, fileList in os.walk(mailroot):
         continue
     '''
     for mboxFile in fileList:
-        if mboxFile == "msgFilterRules.dat":
+        if mboxFile in ["msgFilterRules.dat","filterlog.html"] or re.match("popstate.*\.dat",mboxFile):
             # not an MBOX file
             continue
-            
+        
         fileName, fileExtension = os.path.splitext(mboxFile)
         if fileExtension == ".msf":
             # not an MBOX file
