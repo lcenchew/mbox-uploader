@@ -550,6 +550,10 @@ for dirName, subdirList, fileList in os.walk(mailroot):
             # not an MBOX file
             continue
         
+        if mboxFile in ["DRAFTS","Drafts"]:
+            # cannot import with Gmail API so skip
+            continue
+        
         fileName, fileExtension = os.path.splitext(mboxFile)
         if fileExtension == ".msf":
             # not an MBOX file
