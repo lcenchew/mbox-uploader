@@ -433,6 +433,7 @@ service = build('gmail', 'v1', http=http)
 # get list of current labels
 current_labels = getUserLabels(service, 'me')
 current_labels["DRAFTS"] = "DRAFTS"
+current_labels["Drafts"] = "DRAFTS"
 current_labels["INBOX"] = "INBOX"
 current_labels["Inbox"] = "INBOX"
 current_labels["Incoming"] = "INBOX"
