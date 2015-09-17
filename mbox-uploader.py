@@ -43,6 +43,10 @@ from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
 from urlparse import urlparse, parse_qs
 
+from colorama import init
+init()
+from colorama import Fore
+
 # turn on logging
 logging.basicConfig(filename='mbox-uploader.log',level=logging.INFO)
 
@@ -51,8 +55,7 @@ SCOPES = ("https://www.googleapis.com/auth/gmail.modify",)
 
 # 32 backspaces
 BS32 = "\b"*32
-
-
+    
 """
  * parseCommandLine
  *
@@ -476,7 +479,8 @@ else:
 profile_dir = TBPROFILES + '\\' + selected_profile
 
 # Get folders to migrate
-print("Select which account folder to migrate or local folders, if available:")
+#print("Select which account folder to migrate or local folders, if available:")
+print("Select which account or local folder to migrate:")
 
 folders = {}
 
@@ -497,15 +501,18 @@ if os.path.exists(profile_dir + '\Mail'):
     # if os.path.exists(profile_dir + '\Mail\Local Folders'):
     #     folders['Local Folders'] = profile_dir + '\Mail\Local Folders'
 
+folders['Custom - Specify path to root folder'] = 'custom'
+
 # list account folders
 selection = 0
 while not (selection > 0 and selection <= n):
     n = 0
     folder_by_selection = []
-    for label in folders:
+    for key,label in sorted(folders.items()):
         n += 1
-        print("{0} : {1}".format(str(n).rjust(2),label))
-        folder_by_selection.append(folders[label])
+        print("{0} : {1}".format(str(n).rjust(2),key))
+        #folder_by_selection.append(folders[label])
+        folder_by_selection.append(label)
     try:
         selection = int(raw_input("Selection: "))
         if selection > 0 and selection <= n:
@@ -514,6 +521,18 @@ while not (selection > 0 and selection <= n):
             print("Invalid selection!  Please try again.")
     except:
         print("Invalid selection!  Please try again.")
+
+if selected_folder == "custom":
+    # get custom root folder
+    isGoodPath = False
+    while not isGoodPath:
+        print("Please enter the path to the custom folder")
+        custom_path = raw_input(": ")
+        if os.path.isdir(custom_path):
+            selected_folder=custom_path
+            isGoodPath = True
+        else:
+            print(Fore.RED + "Invalid path!  Please try again." + Fore.RESET)
 
 mailroot = selected_folder
 
@@ -586,7 +605,12 @@ for dirName, subdirList, fileList in os.walk(mailroot):
     # Option 2 : Skip all Gmail custom folders
     if '[Gmail].sbd' in subdirList:
         del subdirList[subdirList.index("[Gmail].sbd")]
-    
+        
+    # Skip .mozmsgs folders
+    mozmsgs_folders = [s for s in subdirList if ".mozmsgs" in s]
+    for mozmsgs_folder in mozmsgs_folders:
+        del subdirList[subdirList.index(mozmsgs_folder)]
+        
 # close database connection
 conn.close()
 
