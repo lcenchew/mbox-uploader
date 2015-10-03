@@ -1,5 +1,5 @@
 # mbox-uploader
-Imports Thunderbird MBOX files to GMail
+Imports Thunderbird MBOX email messages to GMail
 
 ## Requirements:
    * Python 2.7
@@ -7,13 +7,14 @@ Imports Thunderbird MBOX files to GMail
    * Google Console API Client ID and Secret
    
 ## Setup
-1.  Extract Google Python API to same folder containing mbox-uploader.py script
+1.  Extract Google Python API and run: python setup.py install
 2.  Modify credentials.py and set values for CLIENT_ID and CLIENT_SECRET
 
 ## Usage
 
-There are two command line switches:
+There are three command line switches:
 
+--help   : provides usage message<br />
 --reauth : forces reauthentication<br />
 --redoall: forces reimporting of all messages in MBOX
 
