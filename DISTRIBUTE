@@ -1,0 +1,68 @@
+Requirements
+============
+* 32-bit Python
+* Python-Win32 for 32-bit
+* google-api-python-client using pip
+
+Install google-api-python-client
+================================
+pip install google-api-python-client
+
+Upgrade pip if warning was received (Note: received error but it seems to have worked)
+
+pip install --upgrade pip
+
+Install PyInstaller
+===================
+1. Download development version of PyInstaller 2.1
+2. Extract contents of archive
+3. Run:  python setup.py install
+
+Setup Build Environment
+=======================
+1. Download UPX
+
+2. Create build directory
+
+cd <path>\mbox-uploader
+mkdir build
+cd build
+
+3. Extract UPX to <path>\mbox-uploader\build\upx391w
+
+4. Create mbox-uploader.spec file with content between ------- lines
+
+--------------------------------------------------------------------
+# -*- mode: python -*-
+
+block_cipher = None
+
+
+a = Analysis(['..\\mbox-uploader.py'],
+             pathex=['[full path to mbox-uploader\\build directory. use \\ for slashes]'],
+             hiddenimports=[],
+             hookspath=None,
+             runtime_hooks=None,
+             excludes=None,
+             cipher=block_cipher)
+pyz = PYZ(a.pure,
+             cipher=block_cipher)
+exe = EXE(pyz,
+          a.scripts,
+          a.binaries,
+          a.zipfiles,
+          a.datas,
+          name='mbox-uploader.exe',
+          debug=False,
+          strip=None,
+          upx=True,
+          console=True )
+--------------------------------------------------------------------
+
+Build using PyInstaller
+=======================
+cd <path>\mbox-uploader\build
+pyinstaller -F -c --upx-dir=.\upx391w\ -n mbox-uploader ..\mbox-uploader.py
+
+
+Zip file created in <path>\mbox-uploader\build\dist directory and append the version number
