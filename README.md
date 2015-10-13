@@ -16,5 +16,5 @@ There are three command line switches:
 
 --help   : provides usage message<br />
 --reauth : forces reauthentication<br />
---redoall: forces reimporting of all messages in MBOX
+--redoallmessages: forces reimporting of all messages in MBOX
 
