@@ -75,8 +75,8 @@ def parseCommandLine():
     for opt in options:
         if '--help' in opt:
             print
-            print "Usage: mbox-uploader-osx-tb.py [--reauth] [--redoallmessages]"
-            print "       mbox-uploader-osx-tb.py [--help]"
+            print "Usage: mbox-uploader.py [--reauth] [--redoallmessages]"
+            print "       mbox-uploader.py [--help]"
             print
             print "       --help            : displays this message"
             print "       --reauth          : forces reauthorization"
