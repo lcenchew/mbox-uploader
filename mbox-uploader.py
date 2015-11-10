@@ -491,6 +491,7 @@ current_labels["INBOX"] = "INBOX"
 current_labels["Inbox"] = "INBOX"
 current_labels["Incoming"] = "INBOX"
 current_labels["SENT"] = "SENT"
+current_labels["Sent"] = "SENT"
 
 # get %APPDATA% environment variable
 APPDATA = os.environ['APPDATA']
