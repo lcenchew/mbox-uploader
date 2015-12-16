@@ -17,6 +17,7 @@
 
 import apiclient
 import BaseHTTPServer
+import ConfigParser
 import email.utils
 import getopt
 import httplib2
@@ -496,13 +497,26 @@ current_labels["Sent"] = "SENT"
 # get %APPDATA% environment variable
 APPDATA = os.environ['APPDATA']
 
-# Set to Thunderbird Profiles directory
-TBPROFILES = APPDATA + '\Thunderbird\Profiles'
+# Set to Thunderbird profiles.ini location
+TBPROFILES = APPDATA + '\Thunderbird\profiles.ini'
 
-# Get available profiles
-profiles = os.listdir(TBPROFILES)
+config = ConfigParser.RawConfigParser()
+config.read(TBPROFILES)
+config_sections = config.sections()
+profile_count = 0
+profiles = []
+for section in config_sections:
+    if section != 'General':
+        # get profile information
+        profile_is_relative = config.get(section,'IsRelative')
+        profile_path = config.get(section,'Path')
+        profile_name = config.get(section,'Name') + ' (' + profile_path + ')'
+        if profile_is_relative == '1':
+            profile_path = APPDATA + '\Thunderbird\\' + profile_path
+        profiles.append(dict(name=profile_name,path=profile_path))
+        profile_count = profile_count + 1
 
-if len(profiles) > 1:
+if profile_count > 1:
     # display profile selection menu
     print("Please select the number of the profile you wish to migrate:")
     
@@ -512,19 +526,18 @@ if len(profiles) > 1:
         n = 0
         for profile in profiles:
             n += 1
-            print("{0} : {1}".format(str(n).rjust(2),profile))
+            print("{0} : {1}".format(str(n).rjust(2),profile['name']))
         try:
             selection = int(raw_input("Selection: "))
             if selection > 0 and selection <= n:
-                selected_profile = profiles[selection-1]
+                selected_profile = selection-1
             else:
                 print("Invalid selection!  Please try again.")
         except:
             print("Invalid selection!  Please try again.")
 else:
-    selected_profile = profiles[0]
-
-profile_dir = TBPROFILES + '\\' + selected_profile
+    selected_profile = 0
+profile_dir = profiles[selected_profile]['path']
 
 # Get folders to migrate
 #print("Select which account folder to migrate or local folders, if available:")
@@ -546,8 +559,6 @@ if os.path.exists(profile_dir + '\Mail'):
     for item in mailAccountFolders:
         if os.path.isdir(profile_dir + '\Mail\\' + item):
             folders['Mail - ' + item] = profile_dir + '\Mail\\' + item
-    # if os.path.exists(profile_dir + '\Mail\Local Folders'):
-    #     folders['Local Folders'] = profile_dir + '\Mail\Local Folders'
 
 folders['Custom - Specify path to root folder'] = 'custom'
 
@@ -559,7 +570,6 @@ while not (selection > 0 and selection <= n):
     for key,label in sorted(folders.items()):
         n += 1
         print("{0} : {1}".format(str(n).rjust(2),key))
-        #folder_by_selection.append(folders[label])
         folder_by_selection.append(label)
     try:
         selection = int(raw_input("Selection: "))
